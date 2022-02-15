@@ -1,0 +1,3 @@
+Para las funcionalidades de conexión con la base de datos, se utiliza la librería pymysql. 
+
+Para la creación de los thumbnails se utiliza la librería Exodus.
