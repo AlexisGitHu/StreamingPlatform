@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="Cache-control" content="no-cache">
+
+	
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+		<style>
+			.comentarioTexto{
+				/*text-overflow:ellipsis;*/
+				/*overflow-y:scroll;*/
+				word-wrap:break-word;
+			}
+			.respuestas{
+				margin-left:10%;
+			}
+			.respuestas .comentarioTexto{
+				font-size:15px;
+			}
+		</style>
+		<script>
+			const queryString = window.location.search;
+        		const urlParams = new URLSearchParams(queryString);
+        		
+        		
+        		
+        		
+        		function votarC(voto, alQueRespondemos, idComentario)
+        		{
+        			var actualizarVotos = $.get(
+        				"http://75.101.164.88/actualizarVotos_gateway.php",
+					{token:urlParams.get("token"), nombreVideo:urlParams.get("video"), urlVideo:urlParams.get("url"), voto:voto, alQueRespondemos:alQueRespondemos, idComentario:idComentario},
+					function(data) 
+					{
+						link = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/player.html?token="+urlParams.get("token")+"&video="+urlParams.get("video")+"&url="+urlParams.get("url");
+						console.log(link);
+						window.location.replace(link);
+					}
+        			)
+        		}
+        		
+        		function votar(voto)
+        		{
+        			var actualizarVotos = $.get(
+        				"http://75.101.164.88/actualizarVotos_gateway.php",
+					{token:urlParams.get("token"), nombreVideo:urlParams.get("video"), urlVideo:urlParams.get("url"), voto:voto},
+					function(data) 
+					{
+						link = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/player.html?token="+urlParams.get("token")+"&video="+urlParams.get("video")+"&url="+urlParams.get("url");
+						console.log(link);
+						window.location.replace(link);
+					}
+        			)
+        		}
+        		
+        		function eliminarComentario(idComentario)
+        		{
+        			var eliminarComment = $.get(
+        				"http://75.101.164.88/eliminarComentario_gateway.php",
+        				{idComentario:idComentario, token: urlParams.get("token")},
+        				function(data)
+        				{
+						var json=JSON.parse(data);
+						json=JSON.parse(json);
+						
+						if(json.respuesta == "ok")
+						{
+							link = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/player.html?token="+urlParams.get("token")+"&video="+urlParams.get("video")+"&url="+urlParams.get("url");
+							console.log(link);
+							window.location.replace(link);
+						}
+						else
+						{
+							alert(json.respuesta);
+						}
+        					
+        				}
+        			);
+        		}
+        		
+        		function responderComentario(alQueRespondemos, idComentario)
+        		{
+        			var contenido = $("#textAreaComentarioResp"+idComentario).val();
+        			var responderComentario = $.get(
+					"http://75.101.164.88/actualizarComentarios_gateway.php",
+					{token:urlParams.get("token"), nombreVideo:urlParams.get("video"), urlVideo:urlParams.get("url"), contenido:contenido, alQueRespondemos:alQueRespondemos, idComentario:idComentario},
+					function(data) 
+					{
+						link = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/player.html?token="+urlParams.get("token")+"&video="+urlParams.get("video")+"&url="+urlParams.get("url");
+						console.log(link);
+						window.location.replace(link);
+					}
+				)
+        		}
+        		
+        		function actualizarVotosC()
+        		{
+        			var nombreVideo = urlParams.get("video");
+				
+				var urlVideo = urlParams.get("url");
+				
+				var votosPositivos = 0;
+				var votosNegativos = 0;
+				
+        			var mostrarVotosC = $.get(
+					"http://75.101.164.88/mostrarVotosComentarios_gateway.php",
+					{nombreVideo:nombreVideo, urlVideo:urlVideo},
+					function(data) 
+					{
+						console.log(data);
+
+						function jsonEscape(str)  
+						{
+							return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+						}
+						var json=JSON.parse(data);
+						console.log(json);
+						json=JSON.parse(json);
+						
+						for(var key in json.votosPos)
+						{
+							id = "votosPosC"+key;
+							document.getElementById(id).innerHTML = json.votosPos[key];
+						}
+						
+						for(var key in json.votosNeg)
+						{
+							id = "votosNegC"+key;
+							document.getElementById(id).innerHTML = json.votosNeg[key];
+						}
+					}
+				);
+        		}
+        		
+        		function actualizarVotos()
+        		{
+        			var nombreVideo = urlParams.get("video");
+				
+				var urlVideo = urlParams.get("url");
+				
+				var votosPositivos = 0;
+				var votosNegativos = 0;
+				
+        			var mostrarVotos = $.get(
+					"http://75.101.164.88/mostrarVotos_gateway.php",
+					{nombreVideo:nombreVideo, urlVideo:urlVideo},
+					function(data) 
+					{
+						console.log(data);
+
+						function jsonEscape(str)  
+						{
+							return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+						}
+						var json=JSON.parse(data);
+						console.log(json);
+						json=JSON.parse(json);
+						
+						document.getElementById("votosPos").innerHTML = json.votosPos;
+						document.getElementById("votosNeg").innerHTML = json.votosNeg;
+						
+						actualizarVotosC();
+					}
+				);
+				
+        		}
+        		
+			function actualizarPagina()
+			{
+				var nombreVideo = urlParams.get("video");
+				
+				var urlVideo = urlParams.get("url");
+				
+				link = "http://davidgdistribuidosutad.s3.amazonaws.com/perfil.html?token="+urlParams.get("token");
+				linkPaginaPrincial = "http://davidgdistribuidosutad.s3.amazonaws.com/paginaPrincipal.html?token="+urlParams.get("token");
+				document.getElementById("perfil").href = link;
+				document.getElementById("paginaPrincipal").href = linkPaginaPrincial;
+				
+				/*var mostrarVotos = $.get(
+					"http://75.101.164.88/mostrarVotos_gateway.php",
+					{nombreVideo:nombreVideo, urlVideo:urlVideo},
+					function(data) 
+					{
+						console.log(data);
+
+						function jsonEscape(str)  
+						{
+							return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+						}
+						var json=JSON.parse(data);
+						console.log(json);
+						json=JSON.parse(json);
+						
+						votosPositivos = json.votosPos;
+						votosNegativos = json.votosNeg;
+					}
+				);*/
+				
+				$("#containerVideo").append("\
+					<video width='800' height='600' controls>\
+					<source id='sourceVideo' src='"+urlVideo+"' type='video/mp4'>\
+					Your browser does not support the video tag.\
+					</video>\
+					<div class='d-flex justify-content-between' >\
+						<h3 id='titulo'>\
+							"+nombreVideo+"\
+						</h3>\
+						<div>\
+							<span id='votosPos'></span><button class='btn btn-secondary' onclick='votar(\""+1+"\")'><i class='fas fa-thumbs-up'></i></button>\
+							<span id='votosNeg'></span><button class='btn btn-secondary' onclick='votar(\""+-1+"\")'><i class='fas fa-thumbs-down'></i></button>\
+						</div>\
+					</div>\
+				");
+				
+				//var muestraComentarios = funcionMuestraComentarios(); 
+				var muestraComentario = $.get(
+					"http://75.101.164.88/mostrarComentarios_gateway.php",
+					{nombreVideo:nombreVideo, urlVideo:urlVideo},
+					function(data) 
+					{
+						console.log(data);
+
+						function jsonEscape(str)  
+						{
+							return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+						}
+						var json=JSON.parse(data);
+						console.log(json);
+						json=JSON.parse(json);
+						for(var i = 0; i < json.comentarios.length; i++)
+						{
+							$("#divComentarios").append("\
+							<hr>\
+							<div class='row'>\
+								<div class='row comentariosOriginales' id='"+json.comentarios[i][2]+"'>\
+									<div class='col-sm-4'>\
+										<h5>\
+											"+json.comentarios[i][0]+"\
+										</h5>\
+									</div>\
+									<div class='col-sm-8'>\
+										<p class='comentarioTexto'>\
+											"+json.comentarios[i][1]+"\
+										</p>\
+									</div>\
+								</div>\
+								<div>\
+									<span id='votosPosC"+json.comentarios[i][2]+"'></span><button class='btn btn-secondary' onclick='votarC(\""+1+"\",\""+json.comentarios[i][0]+"\",\""+json.comentarios[i][2]+"\")'><i class='fas fa-thumbs-up'></i></button>\
+									<span id='votosNegC"+json.comentarios[i][2]+"'></span><button class='btn btn-secondary' onclick='votarC(\""+-1+"\",\""+json.comentarios[i][0]+"\",\""+json.comentarios[i][2]+"\")'><i class='fas fa-thumbs-down'></i></button>\
+								</div>\
+								<button class='btn btn-secondary' onclick='responderComentario(\""+json.comentarios[i][0]+"\",\""+json.comentarios[i][2]+"\")'> Responder </button> \
+								<textarea id='textAreaComentarioResp"+json.comentarios[i][2]+"' cols='50' rows='4' name='comment' form='formComments' maxlength='200'></textarea>\
+								<button class='btn btn-secondary' onclick='eliminarComentario(\""+json.comentarios[i][2]+"\")'> Eliminar </button>\
+								<div class='row respuestas' name='"+json.comentarios[i][2]+"'>\
+								</div>\
+							</div>");
+						}
+						console.log(json.comentariosResp);
+						for(var i = 0; i < json.comentariosResp.length; i++)
+						{
+							$("[name='"+json.comentariosResp[i][0]+"']").append("\
+							<div class='row'>\
+								<div class='col-sm-4'>\
+									<h6>\
+										"+json.comentariosResp[i][1]+"\
+									</h6>\
+								</div>\
+								<div class='col-sm-8'>\
+									<p class='comentarioTexto'>\
+										@"+json.comentariosResp[i][3]+" "+json.comentariosResp[i][2]+"\
+									</p>\
+								</div>\
+							</div>");
+						}
+					
+						actualizarVotos();
+					}
+				)
+			}
+			
+			function actualizarComentarios()
+			{
+				var comentario = $("#textAreaComentario").val();
+				console.log(comentario);
+				
+				var actualizaComentario = $.get(
+					"http://75.101.164.88/actualizarComentarios_gateway.php",
+					{token:urlParams.get("token"), nombreVideo:urlParams.get("video"), urlVideo:urlParams.get("url"), contenido:comentario},
+					function(data) 
+					{
+						link = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/player.html?token="+urlParams.get("token")+"&video="+urlParams.get("video")+"&url="+urlParams.get("url");
+						console.log(link);
+						window.location.replace(link);
+					}
+				)
+			}
+		</script>
+	</head>
+	<body onload="actualizarPagina()">
+		<div class="d-flex">
+			<div id="sidebar">
+				<div id="sidebar-accordion" class="accordion">
+			  
+					<div class="list-group">	
+						<a id="perfil" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-user mr-3"></i>Perfil </a>
+				  		<a id="paginaPrincipal" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-home mr-3"></i>Pagina principal </a>
+				  
+					</div>
+				</div>
+
+			</div>
+			<div class="content w-100">
+				<section class="p-3" >
+					<div class="container">
+						<div class="container" id="containerVideo">
+							
+						</div>
+						<div>
+							<div id="formComments">
+								<textarea id="textAreaComentario" cols="50" rows="4" name="comment" form="formComments" maxlength="200"></textarea>
+								<br>
+								<button class="btn btn-primary" onclick="actualizarComentarios()">Comentar</button>
+							</form>
+						</div>
+						<div id="divComentarios">
+							<!--<hr>
+							<div class="row">
+								<div class="row comentariosOriginales">
+									<div class="col-sm-4">
+										<h5>
+											Hola
+										</h5>
+									</div>
+									<div class="col-sm-8">
+										<p class="comentarioTexto">
+											añoishgñosfndñlskdnfñaskndflañskjfdñoasdnñoasndvñasnvñasnvñanvfñoasfniñoasinfñoasdnfñ
+										</p>
+									</div>
+								</div>
+								<div class="row respuestas">
+									<div class="row">
+										<div class="col-sm-4">
+											<h6>
+												@Hola
+											</h6>
+										</div>
+										<div class="col-sm-8">
+											<p class="comentarioTexto">
+												añoishgñosfndñlskdnfñaskndflañskjfdñoasdnñoasndvñasnvñasnvñanvfñoasfniñoasinfñoasdnfñ
+											</p>
+										</div>
+									</div>
+									<div class="row">
+										
+									</div>
+								</div>
+							</div>-->
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"> </script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"> </script>
+	</body>
+</html>

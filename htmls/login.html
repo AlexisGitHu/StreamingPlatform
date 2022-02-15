@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script>
+
+function recuperarContrasena()
+{
+	window.location.replace("http://davidgdistribuidosutad.s3.us-east-1.amazonaws.com/fraseRecuperacion.html");
+}
+
+function login()
+{
+        var nombreUsuario=document.getElementById("nombreUsuario").value;
+        var contrasena=document.getElementById("contrasena").value;
+
+        //alert(op1+' '+op2+' '+op);
+        // var vres="";
+        var asd=$.get(
+//                    "http://75.101.164.88/login.php",
+	       "http://75.101.164.88/login_gateway.php",
+
+            {nombreUsuario : nombreUsuario, contrasena : contrasena},
+            function(data) {
+
+                function jsonEscape(str)  {
+                        return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+                }
+
+               //descomentar esta línea si se usa PHP :
+               var json=JSON.parse(data);
+               json=JSON.parse(json);
+               //descomentar esta línea si se usa lambda-apigateway : var json=data;
+               //var json=data;
+               //json=JSON.parse(JSON.stringify(json).replace(/\\"/g,'"'));
+               if(json.redirect == "incorrecto")
+               {
+			alert("Login invalido");
+               }
+               else if(json.redirect == "blocked")
+               {
+               	 alert("La cuenta ha sido bloqueada");
+               }
+               else
+               {
+               	window.location.replace(json.redirect);
+               }
+            }
+        )
+          .done(function() {
+            alert( "second success" );
+          })
+          .fail(function() {
+            alert( "error" );
+          })
+          
+        asd.always(function() {
+        alert( "second finished" );
+        });
+}
+
+</script>
+
+
+
+</head>
+<body>
+
+<h2>Login</h2>
+
+    <label for="uname"><b>Usuario</b></label>
+    <input type="text" id="nombreUsuario" placeholder="Introduce usuario" name="uname" required>
+
+    <label for="psw"><b>Contrasena</b></label>
+    <input type="password" id="contrasena" placeholder="Introduce contrasena" name="psw" required>
+    
+    <button onclick="recuperarContrasena()"><b>Recuperar contrasena</b></button>
+    
+    <button id="loginB" onclick="login()">Login</button>
+</body>
+</html>
+

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+	<title>Subir Video</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script>
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+var nombreUsuario = "";
+var nombreBucket = "";
+var video = "";
+var url="";
+
+function getBucket()
+{
+	var getBucketName = $.get(
+		"http://75.101.164.88/getBucket_gateway.php",
+		{token:urlParams.get("token")},
+		function(data)
+		{
+			var json=JSON.parse(data);
+                       json=JSON.parse(json);
+                       nombreUsuario = json.user;
+                       nombreBucket = json.bucket;
+			getAWSKeys();	
+		}
+	)
+}
+
+function getAWSKeys() {
+	link = "http://davidgdistribuidosutad.s3.amazonaws.com/perfil.html?token="+urlParams.get("token");
+	linkPaginaPrincial = "http://davidgdistribuidosutad.s3.amazonaws.com/paginaPrincipal.html?token="+urlParams.get("token");
+	document.getElementById("perfil").href = link;
+	document.getElementById("paginaPrincipal").href = linkPaginaPrincial;
+
+	$("#formulario").attr("action", nombreBucket);
+	var paginaRedireccion = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/subirvideo.html?token="+urlParams.get("token");
+	$("#successRedirect").attr("value", paginaRedireccion);
+	var asd=$.get(
+ 			"http://75.101.164.88/keys_gateway.php",
+		    {nombreUsuario:nombreUsuario, token:urlParams.get("token")},
+		    function(data) {
+
+		       var json=JSON.parse(data);
+                       json=JSON.parse(json);
+		       document.getElementById("Policy").value = json.stringToSign;
+		       document.getElementById("X-Amz-Credential").value = json.xAmzCredential;		
+		       document.getElementById("X-Amz-Date").value = json.amzDate;		
+		       document.getElementById("X-Amz-Signature").value = json.stringSigned;	
+		       document.getElementById("X-Amz-Security-Token").value = json.securityToken;	
+			
+		    }
+		)
+  
+}
+
+function setKeyFilename() 
+{
+	
+	var video = urlParams.get("video");
+	var url = urlParams.get("url");
+	
+	
+	document.getElementById("key").value = document.getElementById("file").value.substring(document.getElementById("file").value.lastIndexOf('\\')+1);
+	nombreFichero = document.getElementById("key").value;
+	nombreVideo = document.getElementById("x-amz-meta-NombreVideo").value;
+	etiquetaVideo = document.getElementById("x-amz-meta-EtiquetaVideo").value;
+	publico = $('input[name=privacidad]').is(':checked');
+	var asd=$.get(
+ 			"http://75.101.164.88/subirVideo_gateway.php",
+		    {nombreUsuario : nombreUsuario, nombreVideo : nombreVideo, etiquetaVideo : etiquetaVideo, nombreFichero:nombreFichero, publico:publico, video:video, url:url},
+		    function(data) {
+
+		    //   var json=JSON.parse(data);
+                   //    json=JSON.parse(json);
+		    //  document.getElementById("Policy").value = json.stringToSign;
+		    //   document.getElementById("X-Amz-Credential").value = json.xAmzCredential;		
+		   //    document.getElementById("X-Amz-Date").value = json.amzDate;		
+		   //    document.getElementById("X-Amz-Signature").value = json.stringSigned;	
+		   //    document.getElementById("X-Amz-Security-Token").value = json.securityToken;	
+			
+		    }
+		)	
+}
+</script>
+
+
+
+</head>
+<body onload="getBucket()">
+	<div class="d-flex">
+		<div id="sidebar">
+			<div id="sidebar-accordion" class="accordion">
+		  
+				<div class="list-group">	
+					<a id="perfil" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-user mr-3"></i>Perfil </a>
+			  		<a id="paginaPrincipal" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-home mr-3"></i>Pagina principal </a>
+			  
+				</div>
+			</div>
+
+		</div>
+		<div class="content w-100">
+			<section class="p-3" >
+				<form id="formulario" action="http://davidgdistribuidosutad.s3.us-east-1.amazonaws.com/" onsubmit="setKeyFilename()" method="post" enctype="multipart/form-data">
+				  <label >X-Amz-Credential</label>
+				  <input type="text"  id="X-Amz-Credential" name="X-Amz-Credential" value="" />
+				  <label >X-Amz-Date</label>
+				  <input type="text"  id="X-Amz-Date" name="X-Amz-Date" value="" />
+				  <label >Policy  (b64Policy)</label>
+				  <input type="text"  id="Policy" name="Policy" value="" />
+				  <label >X-Amz-Signature</label>
+				  <input type="text"   id="X-Amz-Signature" name="X-Amz-Signature" value="" />
+				  
+					<input type="input" id="key" name="key" value="fichero.sln" /><br />
+				    <input type="hidden" name="acl" value="public-read" />
+				    <input type="hidden" id="successRedirect" name="success_action_redirect" value="http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/perfil.html" />
+				    <input type="text"   name="X-Amz-Algorithm" value="AWS4-HMAC-SHA256" />
+				  	<input type="text" id="X-Amz-Security-Token" name="X-Amz-Security-Token" value=""/>
+				  	
+				   <br>
+				   <br>  	
+				   <label>Nombre_video</label>
+				   <input type="text" id="x-amz-meta-NombreVideo" name="x-amz-meta-NombreVideo" value="" />
+				   <label>Etiquetas_video</label>
+				   <input type="text" id="x-amz-meta-EtiquetaVideo" name="x-amz-meta-EtiquetaVideo" value="" />
+				   Select file to upload:
+				    <input type="file" name="file" id="file">
+				    <label for="publico">Publico</label>
+					<input type="checkbox" name="privacidad" id="publico" value=""/><br>
+				    <input type="submit" value="Upload Image" name="submit" >
+				</form>
+			</section>
+		</div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"> </script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"> </script>
+</body>
+</html>
+

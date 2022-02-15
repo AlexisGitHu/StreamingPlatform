@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script>
+
+
+
+function enviarContrasena()
+{
+        var nombreUsuario=document.getElementById("nombreUsuario").value;
+        var fraseRecuperacion=document.getElementById("fraseRecuperacion").value;
+
+        //alert(op1+' '+op2+' '+op);
+        // var vres="";
+        var asd=$.get(
+//                    "http://75.101.164.88/login.php",
+	       "http://75.101.164.88/contrasena_gateway.php",
+
+            {nombreUsuario : nombreUsuario, fraseRecuperacion : fraseRecuperacion},
+            function(data) {
+
+                function jsonEscape(str)  {
+                        return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+                }
+
+               //descomentar esta línea si se usa PHP :
+               var json=JSON.parse(data);
+               json=JSON.parse(json);
+               //descomentar esta línea si se usa lambda-apigateway : var json=data;
+               //var json=data;
+               //json=JSON.parse(JSON.stringify(json).replace(/\\"/g,'"'));
+               if(json.redirect == "incorrecto")
+               {
+			alert("Frase de recuperacion invalida");
+               }
+               else if(json.redirect == "blocked")
+               {
+               	 alert("La cuenta esta bloqueada");
+               }
+               else
+               {
+               	alert("La contrasena es: "+json.redirect);
+               }
+            }
+        )
+          .done(function() {
+            alert( "second success" );
+          })
+          .fail(function() {
+            alert( "error" );
+          })
+          
+        asd.always(function() {
+        alert( "second finished" );
+        });
+}
+
+function irLogin()
+{
+	window.location.replace("http://davidgdistribuidosutad.s3.us-east-1.amazonaws.com/login.html");
+}
+
+</script>
+
+
+
+</head>
+<body>
+
+<h2>Frase recuperacion</h2>
+
+    <label for="uname"><b>Usuario</b></label>
+    <input type="text" id="nombreUsuario" placeholder="Introduce usuario" name="uname" required>
+
+    <label for="rcvr"><b>Recuperar contrasena</b></label>
+    <input type="text" id="fraseRecuperacion" placeholder="Introduce frase de recuperacion" name="rcvr">
+    
+    <button id="loginB" onclick="enviarContrasena()">Recuperar</button>
+    <button onclick="irLogin()">Ir a login</button>
+</body>
+</html>
+

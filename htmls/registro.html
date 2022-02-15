@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script>
+
+
+$(document).ready(function(){
+  $("button").click(function(){
+  		 var nombreCompleto=document.getElementById("nombreCompleto").value;
+                var nombreUsuario=document.getElementById("nombreUsuario").value;
+  		 var correoElectronico=document.getElementById("correoElectronico").value;
+                var contrasena=document.getElementById("contrasena").value;
+                var fraseRecuperacion =document.getElementById("fraseRecuperacion").value;
+
+                //alert(op1+' '+op2+' '+op);
+                var vres="";
+                var asd=$.get(
+//                    "http://75.101.164.88/login.php",
+		       "http://75.101.164.88/registro_gateway.php",
+
+                    {nombreCompleto: nombreCompleto, nombreUsuario: nombreUsuario, correoElectronico: correoElectronico, contrasena: contrasena , fraseRecuperacion: fraseRecuperacion},
+                    function(data) {
+
+                        function jsonEscape(str)  {
+                                return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+                        }
+
+                       //descomentar esta línea si se usa PHP :
+                       var json=JSON.parse(data);
+                       json=JSON.parse(json);
+                       //descomentar esta línea si se usa lambda-apigateway : var json=data;
+                       //var json=data;
+                       if(json.redirect == "User no valido")
+                       {
+                       	alert(json.redirect);
+                       }
+                       else
+                       {
+                       	window.location.replace(json.redirect);
+                       }
+
+                    }
+                )
+                  .done(function() {
+                    alert( "second success" );
+                  })
+                  .fail(function() {
+                    alert( "error" );
+                  })
+                  
+                asd.always(function() {
+                alert( "second finished" );
+                });
+
+
+  });
+});
+
+</script>
+
+</head>
+<body>
+
+
+<div class="container">
+    <h1>Registro</h1>
+    <hr>
+
+    <label for="name"><b>Nombre completo</b></label>
+    <input type="text" id="nombreCompleto" placeholder="Introduce nombre" name="name" required>
+    
+    <label for="user"><b>Usuario</b></label>
+    <input type="text" id="nombreUsuario" placeholder="Introduce usuario" name="user" required>
+
+    <label for="email"><b>Email</b></label>
+    <input type="text" id="correoElectronico" placeholder="Introduce email" name="email" required>
+	<br>
+    <label for="psw"><b>Contrasena</b></label>
+    <input type="password" id="contrasena" placeholder="Introduce contrasena" name="psw" required>
+    
+    <label for="recc-frase"><b>Frase de recuperacion</b></label>
+    <input type="text" id="fraseRecuperacion" placeholder="Introduce la frase" name="recc-frase" required>
+
+    <div class="clearfix">
+      <button>Registrarme</button>
+    </div>
+</div>
+
+</body>
+</html>
+

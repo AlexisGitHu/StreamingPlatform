@@ -1,0 +1,208 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="Cache-control" content="no-cache">
+	
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+	
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+		<title>Perfil</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<style>
+			#sidebar {
+				width: 20%;
+				height: 100vh;
+				background: #343a40;
+				position: fixed;
+			}
+			.content {
+				margin-left: 20%;
+			}
+			#busqueda {
+				width: 80%;
+				height: 9%;
+				margin-left: 20%;
+			}
+			
+			#contenedorVideos {
+				margin-top: 5%;
+			}
+		</style>
+		<script>
+			function irAlVideo(elemento)
+			{
+				console.log(elemento.id);
+				nombreVideo = elemento.id;
+				redirect = nombreVideo+".html";
+				window.location.replace(redirect);
+			}
+			
+			function mostrarPlayer(url,nombreVideo)
+			{
+				nombreBucket = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/player.html";
+				link = nombreBucket+"?token="+urlParams.get("token")+"&video="+nombreVideo+"&url="+url;
+				window.location.replace(link);
+			}
+			
+			function buscarVideos()
+			{
+				inputBusqueda = $("#inputBusqueda").val();
+				console.log(inputBusqueda);
+				window.location.replace("http://davidgdistribuidosutad.s3.amazonaws.com/paginaBusqueda.html?token="+urlParams.get("token")+"&tag="+inputBusqueda+"&publico=false");
+			}
+
+			function editarVideo(url, nombreVideo)
+			{
+				linkEditar = "http://davidgdistribuidosutad.s3.amazonaws.com/editarVideo.html?token="+urlParams.get("token")+"&video="+nombreVideo+"&url="+url;
+				window.location.replace(linkEditar);
+			}
+
+			const queryString = window.location.search;
+        		const urlParams = new URLSearchParams(queryString);
+        		
+        		function eliminarVideo(ruta, nombre)
+        		{
+        			var direcciones = $.get(
+					"http://75.101.164.88/eliminarVideo.php",
+					{rutaEnS3:ruta, nombreVideo:nombre},
+					function(data)
+					{
+						function jsonEscape(str)  
+						{
+							return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+						}
+					}
+				)
+				setTimeout(()=>{window.location.reload();},5000);
+				//delay(5000);
+				
+        		}
+        		
+			function modificarHref()
+			{
+				console.log(urlParams.get("token"));
+				
+				linkSubir = "http://davidgdistribuidosutad.s3.amazonaws.com/subirvideo.html?token="+urlParams.get("token");
+				linkPaginaPrincial = "http://davidgdistribuidosutad.s3.amazonaws.com/paginaPrincipal.html?token="+urlParams.get("token");
+				document.getElementById("perfil").href = linkSubir;
+				document.getElementById("paginaPrincipal").href = linkPaginaPrincial;
+				
+				var direcciones = $.get(
+					"http://75.101.164.88/recibirRutasPersona_gateway.php",
+					{token:urlParams.get("token")},
+					function(data) 
+					{
+						console.log(data);
+
+						function jsonEscape(str)  
+						{
+							return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+						}
+						var json=JSON.parse(data);
+						console.log(json);
+						json=JSON.parse(json);
+						listavideos = json.listavideos;
+						//console.log(JSON.stringify(json));
+						console.log(listavideos);
+						for(var i = 0; i < json.listavideos.length; i++)
+						{
+							$("#todosLosVideos").append("\
+							<div class='col-sm-4'>\
+								<video class='btn' onclick='mostrarPlayer(\""+json.listavideos[i][1]+"\",\""+json.listavideos[i][0]+"\")'width='320' height='240'>\
+										<source src="+json.listavideos[i][1]+" type='video/mp4'>\
+										Your browser does not support the video tag.\
+								</video>\
+								<h5>"+json.listavideos[i][0]+"</h5>\
+								<p id='votos'>Likes: "+json.listavideos[i][2]+"   Dislikes: "+json.listavideos[i][3]+"</p>\
+								<a class='btn' href='"+json.listavideos[i][1]+"'>Descarga</a>\
+								<button class='btn' onclick='eliminarVideo(\""+json.listavideos[i][1]+"\",\""+json.listavideos[i][0]+"\")'>Eliminar</button>\
+								<button class='btn' onclick='editarVideo(\""+json.listavideos[i][1]+"\",\""+json.listavideos[i][0]+"\")'>Editar</button>\
+							</div>");
+						}
+					
+					}
+				)
+			}
+
+		</script>
+	</head>
+
+	<body onload="modificarHref()">
+		<div class="d-flex">
+			<div id="sidebar">
+				<div class="p-2">
+					<a href="#" class="navbar-brand text-center text-light w-100 p-4 border-bottom">Perfil</a>
+				</div>
+			
+				<div id="sidebar-accordion" class="accordion">
+			  
+					<div class="list-group">	
+						<a id="perfil" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-tachometer mr-3"></i>Subir video </a>
+				  		<a id="paginaPrincipal" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-home mr-3"></i>Pagina principal </a>
+				  
+					</div>
+				</div>
+		
+			</div>
+		
+			<div class="content w-100">
+				<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="busqueda">
+					<div class="container-xl">
+						<div class="collapse navbar-collapse">
+							<ul class="navbar-nav mr-auto">
+								<li class="nav-item active">
+									<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">Link</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" id="dropdown07XL" data-toggle="dropdown" aria-expanded="false">Dropdown</a>
+									<div class="dropdown-menu" aria-labelledby="dropdown07XL">
+										<a class="dropdown-item" href="#">Action</a>
+										<a class="dropdown-item" href="#">Another action</a>
+										<a class="dropdown-item" href="#">Something else here</a>
+									</div>
+								</li>
+							</ul>
+							<div class="form-inline my-2 my-md-0">
+								<input id="inputBusqueda" class="form-control" type="text" placeholder="Search" aria-label="Search"><i class="fa fa-search pl-2 text-white btn" onclick="buscarVideos()"></i>
+							</div>
+						</div>
+					</div>
+				</nav>
+				<section class="p-3" >
+					<div class="container" id="contenedorVideos">
+						<div class="row">
+							<div class="col-md-12">
+								<h2>Todos tus video</h2>
+								<div class="container">
+									<div class="row" id="todosLosVideos">
+										
+										
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"> </script> -->
+		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"> </script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"> </script>
+	</body>
+
+</html>

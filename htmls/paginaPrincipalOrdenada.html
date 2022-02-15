@@ -1,0 +1,190 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta http-equiv="Cache-control" content="no-cache">
+
+	
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+		<title>Pagina principal ordenada</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+		<style>
+			#sidebar {
+				width: 20%;
+				height: 100vh;
+				background: #343a40;
+				position: fixed;
+			}
+			.content {
+				margin-left: 20%;
+			}
+			#busqueda {
+				width: 80%;
+				height: 9%;
+				margin-left: 20%;
+			}
+			
+			#contenedorVideos {
+				margin-top: 5%;
+			}
+			.thumbnail {
+				position: absolute;
+				top: 14%;
+				left: 8%;
+				height: 165px;
+				width: 290px;
+				z-index: 1;
+			}
+			.videos:hover {
+				z-index: 0;
+			}
+			.videos {
+				position: relative;
+				z-index: 2;
+			}
+			
+		</style>
+		<script>
+			
+			const queryString = window.location.search;
+        		const urlParams = new URLSearchParams(queryString);
+        	
+			function mostrarPlayer(url,nombreVideo)
+			{
+				nombreBucket = "http://davidgdistribuidosutad.s3-website-us-east-1.amazonaws.com/player.html";
+				link = nombreBucket+"?token="+urlParams.get("token")+"&video="+nombreVideo+"&url="+url;
+				window.location.replace(link);
+			}
+
+			function buscarVideos()
+			{
+				inputBusqueda = $("#inputBusqueda").val();
+				console.log(inputBusqueda);
+				window.location.replace("http://davidgdistribuidosutad.s3.amazonaws.com/paginaBusqueda.html?token="+urlParams.get("token")+"&tag="+inputBusqueda+"&publico=true");
+			}
+
+			function modificarHref()
+			{
+				console.log(urlParams.get("token"));
+				
+				link = "http://davidgdistribuidosutad.s3.amazonaws.com/perfil.html?token="+urlParams.get("token");
+				linkPaginaPrincial = "http://davidgdistribuidosutad.s3.amazonaws.com/paginaPrincipal.html?token="+urlParams.get("token");
+				document.getElementById("perfil").href = link;
+				document.getElementById("paginaPrincipal").href = linkPaginaPrincial;
+				
+				var direcciones = $.get(
+					"http://75.101.164.88/recibirRutasOrdenadas_gateway.php",
+					{},
+					function(data) 
+					{
+						console.log(data);
+
+						function jsonEscape(str)  
+						{
+							return str.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t").replace(/\\/g,"");
+						}
+						var json=JSON.parse(data);
+						console.log(json);
+						json=JSON.parse(json);
+						listavideos = json.listavideos;
+						//console.log(JSON.stringify(json));
+						console.log(listavideos);
+						for(var i = 0; i < json.listavideos.length; i++)
+						{
+							thumbnail = json.listavideos[i][1]+"_thumb.gif";
+							$("#todosLosVideos").append("\
+							<div class='col-sm-4' style='position: relative; left: 0; top: 0; cursor: pointer' onclick='mostrarPlayer(\""+json.listavideos[i][1]+"\",\""+json.listavideos[i][0]+"\")'>\
+								<img src=\""+thumbnail+"\" class='thumbnail'>\
+								<video class='btn videos' width='320' height='240'>\
+										<source src="+json.listavideos[i][1]+" type='video/mp4'>\
+										Your browser does not support the video tag.\
+								</video>\
+								<h5>"+json.listavideos[i][0]+"</h5>\
+							</div>");
+						}
+					
+					}
+				)
+			}
+        		
+		</script>
+	</head>
+
+	<body onload="modificarHref()">
+		<div class="d-flex">
+			<div id="sidebar">
+				<div class="p-2">
+					<a href="#" class="navbar-brand text-center text-light w-100 p-4 border-bottom">Menu</a>
+				</div>
+			
+				<div id="sidebar-accordion" class="accordion">
+			  
+					<div class="list-group">	
+						<a id="perfil" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-user mr-3"></i>Perfil </a>
+				  		<a id="paginaPrincipal" href="" class="list-group-item list-group-item-action bg-dark text-light"> <i class="fa fa-home mr-3"></i>Pagina principal </a>
+				  
+					</div>
+				</div>
+		
+			</div>
+		
+			<div class="content w-100">
+				<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="busqueda">
+					<div class="container-xl">
+						<div class="collapse navbar-collapse">
+							<ul class="navbar-nav mr-auto">
+								<li class="nav-item active">
+									<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="#">Link</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" id="dropdown07XL" data-toggle="dropdown" aria-expanded="false">Dropdown</a>
+									<div class="dropdown-menu" aria-labelledby="dropdown07XL">
+										<a class="dropdown-item" href="#">Action</a>
+										<a class="dropdown-item" href="#">Another action</a>
+										<a class="dropdown-item" href="#">Something else here</a>
+									</div>
+								</li>
+							</ul>
+							<div class="form-inline my-2 my-md-0">
+								<input id="inputBusqueda" class="form-control" type="text" placeholder="Search" aria-label="Search"><i class="fa fa-search pl-2 text-white btn" onclick="buscarVideos()"></i>
+							</div>
+						</div>
+					</div>
+				</nav>
+				<section class="p-3" >
+					<div class="container" id="contenedorVideos">
+						<div class="row">
+							<div class="col-md-12">
+								<h2>Todos los video</h2>
+								<div class="container">
+									<div class="row" id="todosLosVideos">
+										
+										
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</div>
+		</div>
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"> </script>-->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"> </script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"> </script>
+	</body>
+
+</html>
